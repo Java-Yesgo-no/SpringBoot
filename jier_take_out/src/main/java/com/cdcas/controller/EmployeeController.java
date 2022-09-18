@@ -62,7 +62,7 @@ public class EmployeeController {
             return R.error("此账户已禁用");
         }
 //       第六步:登陆成功,将员工id存入Session并返回登录成功结果
-        httpServletRequest.getSession().setAttribute("employee",employee.getId());
+        httpServletRequest.getSession().setAttribute("employee",employee);
         return R.success(emp);
     }
 
