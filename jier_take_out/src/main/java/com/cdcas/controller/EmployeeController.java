@@ -14,13 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 
 @Slf4j
 @RestController
 @RequestMapping("/employee")
 public class EmployeeController {
     @Autowired
-    private EmployeeService Employeeservice;
+    private EmployeeService employeeservice;
 
     /**
      * 员工登录功能
@@ -45,7 +46,7 @@ public class EmployeeController {
 //        第二步:根据页面提交的用户名username查询数据库
         LambdaQueryWrapper<Employee> queryWrapper=new LambdaQueryWrapper<>();
         queryWrapper.eq(Employee::getUsername,employee.getUsername());
-        Employee emp=Employeeservice.getOne(queryWrapper);
+        Employee emp=employeeservice.getOne(queryWrapper);
 
 //        第三步:如果没有查询到则返回登录失败的结果queryWrapper = {LambdaQueryWrapper@7818}
         if (emp==null){
@@ -62,7 +63,7 @@ public class EmployeeController {
             return R.error("此账户已禁用");
         }
 //       第六步:登陆成功,将员工id存入Session并返回登录成功结果
-        httpServletRequest.getSession().setAttribute("employee",employee);
+        httpServletRequest.getSession().setAttribute("employee",emp);
         return R.success(emp);
     }
 
@@ -77,5 +78,24 @@ public class EmployeeController {
 //        清除Session保存的当前登录员工的id
         request.getSession().removeAttribute("employee");
         return R.success("退出成功");
+    }
+
+    @PostMapping
+    public R<String> save(HttpServletRequest request,@RequestBody Employee employee){
+        log.info("新增员工,员工信息:{}",employee.toString());
+//        设置初始密码123456，需要进行md5加密处理
+        employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
+
+        employee.setCreateTime(LocalDateTime.now());
+        employee.setUpdateTime(LocalDateTime.now());
+//        获取当前登录用户的id
+        Employee employeeManager= (Employee) request.getSession().getAttribute("employee");
+        Long empManagerId=employeeManager.getId();
+        employee.setCreateUser(empManagerId);
+        employee.setUpdateUser(empManagerId);
+
+
+        employeeservice.save(employee);
+        return R.success("新增员工成功");
     }
 }
