@@ -1,6 +1,7 @@
 package com.cdcas.filter;
 
 import com.alibaba.fastjson.JSON;
+import com.cdcas.common.BaseContext;
 import com.cdcas.common.R;
 import com.cdcas.pojo.Employee;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +57,9 @@ public class LoginCheckFilter implements Filter {
         Employee employee= (Employee) request.getSession().getAttribute("employee");
          if(employee!=null){
             log.info("用户已登录,用户为:"+employee.getUsername());
+
+//            将管理用户Id存入到ThreadLocal线程变量中
+             BaseContext.setCurrent(employee.getId());
             filterChain.doFilter(request,response);
             return;
         }
