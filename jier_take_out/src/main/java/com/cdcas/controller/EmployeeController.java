@@ -126,7 +126,6 @@ public class EmployeeController {
 //        执行查询
         employeeService.page(pageInfo, queryWrapper);
 
-        System.out.println(pageInfo);
         return R.success(pageInfo);
     }
 
