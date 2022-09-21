@@ -17,3 +17,8 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: ASSIGN_ID
+
+
+
+jier:
+  path: D:\鸡儿外卖产生的临时文件\
