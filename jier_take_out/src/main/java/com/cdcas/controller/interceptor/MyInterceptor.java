@@ -14,7 +14,6 @@ import java.io.IOException;
 @Slf4j
 @Component
 public class MyInterceptor implements HandlerInterceptor {
-    public static  final AntPathMatcher ANT_PATH_MATCHER=new AntPathMatcher();
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
         /**

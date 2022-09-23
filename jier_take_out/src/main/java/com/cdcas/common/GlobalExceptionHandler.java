@@ -16,10 +16,10 @@ import java.sql.SQLIntegrityConstraintViolationException;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    /**
-     * 数据库数据不唯一异常处理方法
-     * @return
-     */
+        /**
+         * 数据库数据不唯一异常处理方法
+         * @return
+         */
         @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
         public R<String> exceptionHandler(@NotNull SQLIntegrityConstraintViolationException ex){
             log.error(ex.getMessage());
@@ -31,13 +31,13 @@ public class GlobalExceptionHandler {
             return R.error("未知错误");
         }
 
-    /**
-     * 菜品分类业务处理方法
-     * @return
-     */
-    @ExceptionHandler(CustomException.class)
-    public R<String> exceptionHandler(@NotNull CustomException ex){
-        log.error(ex.getMessage());
-        return R.error(ex.getMessage());
-    }
+        /**
+         * 菜品分类业务处理方法
+         * @return
+         */
+        @ExceptionHandler(CustomException.class)
+        public R<String> exceptionHandler(@NotNull CustomException ex){
+            log.error(ex.getMessage());
+            return R.error(ex.getMessage());
+        }
 }

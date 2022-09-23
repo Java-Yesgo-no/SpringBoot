@@ -49,7 +49,7 @@ public class CommonController {
         }
 
         String fileName = UUID.randomUUID() + suffix;
-
+        log.info(fileName);
 //        创建一个目录对象
         File dir = new File(basePath);
 //        判断当前目录是否存在
@@ -69,12 +69,13 @@ public class CommonController {
     @GetMapping("/download")
     public void download(String name, HttpServletResponse response) throws Exception {
 //        输入流，读取文件
-        FileInputStream fileInputStream = new FileInputStream(new File(basePath) + name);
+        log.info(name);
+        FileInputStream fileInputStream = new FileInputStream(basePath+name);
 //        输出流，将文件写浏览器，在浏览器展示图片
         ServletOutputStream outputStream = response.getOutputStream();
 //        设置返回类型
         response.setContentType("image/jpeg");
-        int len=0;
+        int len;
         byte[] bytes=new byte[1024];
         while ((len=fileInputStream.read(bytes))!=-1){
             outputStream.write(bytes,0,len);
