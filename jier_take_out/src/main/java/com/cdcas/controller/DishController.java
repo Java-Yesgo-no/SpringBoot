@@ -163,4 +163,19 @@ public class DishController {
         dishFlavorService.updateById(dishFlavor);
         return R.success("更新成功");
     }
+
+    /**
+     * 添加套餐时添加菜品
+     * @param categoryId
+     * @return
+     */
+    @GetMapping("list")
+    public R<List<Dish>> dishList(Long categoryId){
+        LambdaQueryWrapper<Dish>  queryWrapper=new LambdaQueryWrapper<>();
+        queryWrapper.eq(categoryId!=null,Dish::getCategoryId,categoryId);
+        List<Dish> dishList = dishService.list(queryWrapper);
+        return R.success(dishList);
+    }
+
+
 }

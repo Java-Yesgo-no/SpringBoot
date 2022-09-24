@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cdcas.common.R;
 import com.cdcas.pojo.Category;
+import com.cdcas.pojo.Dish;
 import com.cdcas.service.CategoryService;
+import com.cdcas.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,9 @@ public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private DishService dishService;
 
     /**
      * 新增分类
@@ -78,5 +83,6 @@ public class CategoryController {
         List<Category> list = categoryService.list(queryWrapper);
         return R.success(list);
     }
+
 
 }
