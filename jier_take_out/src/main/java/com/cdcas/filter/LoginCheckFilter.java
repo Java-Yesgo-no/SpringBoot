@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.cdcas.common.BaseContext;
 import com.cdcas.common.R;
 import com.cdcas.pojo.Employee;
+import com.cdcas.pojo.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.AntPathMatcher;
 
@@ -41,8 +42,10 @@ public class LoginCheckFilter implements Filter {
                 "/employee/login",
                 "/employee/logout",
                 "/backend/**",
-                "/front/**"
-
+                "/front/**",
+                "/common/**",
+                "/user/sendMsg",//移动端发送短信
+                "/user/login"//移动端登录
         };
 //        2.判断本次请求是否需处理
         boolean check=check(requestURI,urls);
@@ -54,13 +57,24 @@ public class LoginCheckFilter implements Filter {
             return;
         }
 //        4.判断登录状态，如果已登录，则直接放行
-        Employee employee= (Employee) request.getSession().getAttribute("employee");
-         if(employee!=null){
-            log.info("用户已登录,用户为:"+employee.getUsername());
+        Employee employee = (Employee) request.getSession().getAttribute("employee");
+        if (employee != null) {
+
+            log.info("用户已登录,用户为:" + employee.getUsername());
 
 //            将管理用户Id存入到ThreadLocal线程变量中
-             BaseContext.setCurrent(employee.getId());
-            filterChain.doFilter(request,response);
+            BaseContext.setCurrent(employee.getId());
+            filterChain.doFilter(request, response);
+            return;
+        }
+//        4.2判断登录状态，如果已登录，则直接放行
+        if (request.getSession().getAttribute("user") != null) {
+            log.info("用户已登录,用户为:" + request.getSession().getAttribute("user"));
+
+            Long userId = (Long) request.getSession().getAttribute("user");
+            BaseContext.setCurrent(userId);
+
+            filterChain.doFilter(request, response);
             return;
         }
         log.info("用户未登录");
