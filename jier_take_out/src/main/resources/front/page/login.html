@@ -63,10 +63,11 @@
                     const regex = /^(13[0-9]{9})|(15[0-9]{9})|(17[0-9]{9})|(18[0-9]{9})|(19[0-9]{9})$/;
                     if (regex.test(this.form.phone)) {
                         this.msgFlag = false
-                        this.form.code = (Math.random() * 1000000).toFixed(0)
+                        // this.form.code = (Math.random() * 1000000).toFixed(0)
+                        // sendMsgApi({phone:this.form.phone})
                         //短信服务
-                        // const res = sendMsgApi({phone: this.form.phone})
-                        // sessionStorage.setItem("code", res)
+                        const res = sendMsgApi({phone: this.form.phone})
+                        sessionStorage.setItem("code", res)
                     }else{
                         this.msgFlag = true
                     }
@@ -75,11 +76,11 @@
                     if(this.form.phone && this.form.code) {
                         this.loading = true
                         //短信服务
-                        // const res = await loginApi({phone: this.form.phone, code: this.form.code})
-                        const res = await loginApi({phone: this.form.phone})
+                        const res = await loginApi({phone: this.form.phone, code: this.form.code})
                         this.loading = false
                         if (res.code === 1) {
                             sessionStorage.setItem("userPhone", this.form.phone)
+                            sessionStorage.setItem("code", this.form.code)
                             window.requestAnimationFrame(() => {
                                 window.location.href = '/front/index.html'
                             })
