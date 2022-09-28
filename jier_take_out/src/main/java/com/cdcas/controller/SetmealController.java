@@ -90,6 +90,12 @@ public class SetmealController {
     }
 
 
+    @GetMapping("/list")
+    public R<List<SetmealDto>> getSetmealDto(String categoryId, String status) {
+        List<SetmealDto> setmealDtoList = setmealService.getListSetmealDto(categoryId, status);
+        return R.success(setmealDtoList);
+    }
+
     @PostMapping("/status/0")
     public R<String> updateStatus0(@RequestParam List<Long> ids) {
         List<Setmeal> setmealList = setmealService.getBaseMapper().selectBatchIds(ids);

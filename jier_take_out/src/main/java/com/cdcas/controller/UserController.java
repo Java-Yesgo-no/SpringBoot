@@ -1,19 +1,21 @@
 package com.cdcas.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cdcas.common.R;
+import com.cdcas.common.SMSUtils;
 import com.cdcas.common.ValidateCodeUtils;
+import com.cdcas.pojo.ShoppingCart;
 import com.cdcas.pojo.User;
 import com.cdcas.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -34,7 +36,7 @@ public class UserController {
             String code = ValidateCodeUtils.generateValidateCode(4).toString();
             log.info(code);
 //        调用阿里云提供的短信服务api完成发送短信
-//            SMSUtils.sendMessage("阿里云短信测试", "SMS_154950909", phone, code);
+            SMSUtils.sendMessage("阿里云短信测试", "SMS_154950909", phone, code);
 //        需要将生成的验证码保存到Session
             session.setAttribute(phone, code);
             return R.success("手机验证码已发送");
@@ -74,5 +76,18 @@ public class UserController {
             return R.success(user);
         }
         return R.error("登陆失败");
+    }
+
+    /**
+     * 用户退出
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/loginout")
+    public R<String> logout(HttpServletRequest request) {
+//        清除Session保存的当前登录的id
+        request.getSession().removeAttribute("user");
+        return R.success("退出成功");
     }
 }

@@ -9,11 +9,13 @@ import com.cdcas.pojo.Setmeal;
 import com.cdcas.pojo.SetmealDish;
 import com.cdcas.service.SetmealDishService;
 import com.cdcas.service.SetmealService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> implements SetmealService{
@@ -45,14 +47,39 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         LambdaQueryWrapper<Setmeal> setmealQueryWrapper=new LambdaQueryWrapper<>();
         setmealQueryWrapper.in(ids!=null,Setmeal::getId,ids);
         setmealQueryWrapper.eq(Setmeal::getStatus,1);
-        int count=this.count(setmealQueryWrapper);
-        if (count>0){
+        int count = this.count(setmealQueryWrapper);
+        if (count > 0) {
             throw new CustomException("无法删除在售套餐");
         }
 //      没有在售的套餐，删除
         this.removeByIds(ids);
-        LambdaQueryWrapper<SetmealDish> setmealDishQueryWrapper=new LambdaQueryWrapper<>();
-        setmealDishQueryWrapper.in(ids!=null,SetmealDish::getSetmealId,ids);
+        LambdaQueryWrapper<SetmealDish> setmealDishQueryWrapper = new LambdaQueryWrapper<>();
+        setmealDishQueryWrapper.in(ids != null, SetmealDish::getSetmealId, ids);
         setmealDishService.remove(setmealDishQueryWrapper);
     }
+
+    @Override
+    public List<SetmealDto> getListSetmealDto(String categoryId, String status) {
+
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<SetmealDish> queryWrapper1 = new LambdaQueryWrapper<>();
+        queryWrapper.eq(categoryId != null, Setmeal::getCategoryId, categoryId);
+        queryWrapper.eq(Setmeal::getStatus, status);
+        queryWrapper.orderByDesc(Setmeal::getPrice).orderByDesc(Setmeal::getCreateTime);
+
+        List<Setmeal> setmealList = this.list(queryWrapper);
+
+        List<SetmealDto> setmealDtoList = setmealList.stream().map((item) -> {
+            SetmealDto setmealDto = new SetmealDto();
+            BeanUtils.copyProperties(item, setmealDto);
+            queryWrapper1.eq(SetmealDish::getSetmealId, item.getId());
+            setmealDto.setSetmealDishes(setmealDishService.list(queryWrapper1));
+            return setmealDto;
+        }).collect(Collectors.toList());
+
+        return setmealDtoList;
+
+    }
+
+
 }

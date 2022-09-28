@@ -16,6 +16,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -139,25 +140,17 @@ public class DishController {
 
     @GetMapping("/{id}")
     public R<DishDto> getDishAndFlavor(@PathVariable Long id) {
-//            获取菜品
-        Dish dish= dishService.getDish(id);
-        DishDto dishDto=new DishDto();
-        BeanUtils.copyProperties(dish,dishDto);
-//            获取菜品的口味
-        LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(id != null, DishFlavor::getDishId, id);
-        List<DishFlavor> flavor = dishFlavorService.list(queryWrapper);
-        dishDto.setFlavors(flavor);
-        log.info(String.valueOf(flavor));
+        DishDto dishDto = dishService.getDish(id);
         return R.success(dishDto);
     }
+
     @PutMapping
-    public R<String> updateDishAndFlavor(@RequestBody DishDto dishDto){
+    public R<String> updateDishAndFlavor(@RequestBody DishDto dishDto) {
 //        将dishDto对象中的数据克隆出来
-        Dish dish=new Dish();
-        BeanUtils.copyProperties(dishDto,dish);
-        DishFlavor dishFlavor=new DishFlavor();
-        BeanUtils.copyProperties(dishDto,dishFlavor);
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDto, dish);
+        DishFlavor dishFlavor = new DishFlavor();
+        BeanUtils.copyProperties(dishDto, dishFlavor);
 //        更新口味和菜品
         dishService.updateById(dish);
         dishFlavorService.updateById(dishFlavor);
@@ -165,17 +158,32 @@ public class DishController {
     }
 
     /**
-     * 添加套餐时添加菜品
-     * @param categoryId
+     * 添加套餐时添加菜品,
+     * 在用户点餐时会复用该代码块
+     *
+     * @param dish
      * @return
      */
-    @GetMapping("list")
-    public R<List<Dish>> dishList(Long categoryId){
-        LambdaQueryWrapper<Dish>  queryWrapper=new LambdaQueryWrapper<>();
-        queryWrapper.eq(categoryId!=null,Dish::getCategoryId,categoryId);
+    @GetMapping("/list")
+    public R<List<DishDto>> dishList(Dish dish) {
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<DishFlavor> queryWrapper1 = new LambdaQueryWrapper<>();
+        queryWrapper.eq(dish.getCategoryId() != null, Dish::getCategoryId, dish.getCategoryId());
+        queryWrapper.eq(Dish::getStatus, 1);
+        queryWrapper.orderByDesc(Dish::getSort).orderByDesc(Dish::getCreateTime);
+
         List<Dish> dishList = dishService.list(queryWrapper);
-        return R.success(dishList);
+
+
+        List<DishDto> dishDtoList = dishList.stream().map((item) -> {
+            DishDto dishDto = new DishDto();
+            BeanUtils.copyProperties(item, dishDto);
+            queryWrapper1.eq(DishFlavor::getDishId, dishDto.getId());
+            dishDto.setFlavors(dishFlavorService.list(queryWrapper1));
+            return dishDto;
+        }).collect(Collectors.toList());
+
+
+        return R.success(dishDtoList);
     }
-
-
 }

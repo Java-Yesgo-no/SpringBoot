@@ -1,5 +1,6 @@
 package com.cdcas.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cdcas.dto.DishDto;
 import com.cdcas.mapper.DishMapper;
@@ -7,6 +8,7 @@ import com.cdcas.pojo.Dish;
 import com.cdcas.pojo.DishFlavor;
 import com.cdcas.service.DishFlavorService;
 import com.cdcas.service.DishService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,8 +47,17 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
     }
 
     @Override
-    public Dish getDish(Long id) {
-        return this.getById(id);
+    public DishDto getDish(Long id) {
+        //            获取菜品
+        Dish dish = this.getById(id);
+        DishDto dishDto = new DishDto();
+        BeanUtils.copyProperties(dish, dishDto);
+//            获取菜品的口味
+        LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(id != null, DishFlavor::getDishId, id);
+        List<DishFlavor> flavor = dishFlavorService.list(queryWrapper);
+        dishDto.setFlavors(flavor);
+        return dishDto;
     }
 
 }
