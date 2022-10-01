@@ -36,7 +36,7 @@ public class UserController {
             String code = ValidateCodeUtils.generateValidateCode(4).toString();
             log.info(code);
 //        调用阿里云提供的短信服务api完成发送短信
-            SMSUtils.sendMessage("阿里云短信测试", "SMS_154950909", phone, code);
+//            SMSUtils.sendMessage("阿里云短信测试", "SMS_154950909", phone, code);
 //        需要将生成的验证码保存到Session
             session.setAttribute(phone, code);
             return R.success("手机验证码已发送");
